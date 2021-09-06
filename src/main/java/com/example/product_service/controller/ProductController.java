@@ -1,9 +1,13 @@
 package com.example.product_service.controller;
 
+import com.example.product_service.command.CreateProductCommand;
 import com.example.product_service.model.Product;
 import lombok.RequiredArgsConstructor;
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/products")
@@ -11,10 +15,20 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
 
     private final Environment env;
+    private final CommandGateway commandGateway;
 
     @PostMapping
     public String createProduct(@RequestBody Product product) {
-        return "Http POST handled " + product.getTitle();
+        try {
+            return commandGateway.sendAndWait(CreateProductCommand.builder()
+                    .title(product.getTitle())
+                    .quantity(product.getQuantity())
+                    .price(product.getPrice())
+                    .productId(UUID.randomUUID().toString())
+                    .build());
+        } catch (Exception e) {
+            return e.getLocalizedMessage();
+        }
     }
 
     @GetMapping
