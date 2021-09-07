@@ -1,4 +1,4 @@
-package com.example.product_service.controller;
+package com.example.product_service.command.rest;
 
 import com.example.product_service.command.CreateProductCommand;
 import com.example.product_service.model.Product;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
-public class ProductController {
+public class ProductCommandController {
 
     private final Environment env;
     private final CommandGateway commandGateway;
@@ -31,18 +31,18 @@ public class ProductController {
         }
     }
 
-    @GetMapping
-    public String getProduct() {
-        return "Http GET handled " + env.getProperty("local.server.port");
-    }
-
-    @PutMapping
-    public String updateProduct() {
-        return "Http PUT handled";
-    }
-
-    @DeleteMapping
-    public String deleteProduct() {
-        return "Http DELETE handled";
-    }
+//    @GetMapping
+//    public String getProduct() {
+//        return "Http GET handled " + env.getProperty("local.server.port");
+//    }
+//
+//    @PutMapping
+//    public String updateProduct() {
+//        return "Http PUT handled";
+//    }
+//
+//    @DeleteMapping
+//    public String deleteProduct() {
+//        return "Http DELETE handled";
+//    }
 }
