@@ -15,6 +15,7 @@ public class ProductEventHandler {
 
     private final ProductsRepository productsRepository;
 
+    @SuppressWarnings("unused")
     @EventHandler
     public void on(ProductCreatedEvent event) {
         val productEntity = new ProductEntity();
