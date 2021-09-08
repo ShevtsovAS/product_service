@@ -1,30 +1,35 @@
 package com.example.product_service.command.interceptors;
 
 import com.example.product_service.command.CreateProductCommand;
+import com.example.product_service.core.data.ProductLookupRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import lombok.val;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.messaging.MessageDispatchInterceptor;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiFunction;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class CreateProductCommandInterceptor implements MessageDispatchInterceptor<CommandMessage<?>> {
+
+    private final ProductLookupRepository productLookupRepository;
+
     @Override
     public BiFunction<Integer, CommandMessage<?>, CommandMessage<?>> handle(List<? extends CommandMessage<?>> list) {
         return (index, command) -> {
             log.info("Intercepted command: {}", command.getPayloadType());
             if (CreateProductCommand.class.equals(command.getPayloadType())) {
-                var createProductCommand = (CreateProductCommand) command.getPayload();
-                Optional.of(createProductCommand.getPrice()).filter(it -> it.compareTo(BigDecimal.ZERO) > 0)
-                        .orElseThrow(() -> new IllegalArgumentException("Price cannot be less or equal than zero"));
-                Optional.of(createProductCommand.getTitle()).filter(StringUtils::isNotBlank)
-                        .orElseThrow(() -> new IllegalArgumentException("Title cannot be empty"));
+                val createProductCommand = (CreateProductCommand) command.getPayload();
+                val alreadyExists = productLookupRepository.existsByProductIdOrTitle(createProductCommand.getProductId(), createProductCommand.getTitle());
+                if (alreadyExists) {
+                    throw new IllegalStateException(String.format("Product with productId %s or title %s already exists",
+                            createProductCommand.getProductId(), createProductCommand.getTitle()));
+                }
             }
             return command;
         };
